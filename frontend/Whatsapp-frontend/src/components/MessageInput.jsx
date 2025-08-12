@@ -12,8 +12,6 @@ function MessageInput({ onSend }) {
         setMessage("")
     }
 
-
-
     return (
     <section className='p-4 border-t border-gray-300 flex'>
         <input value={message} 
