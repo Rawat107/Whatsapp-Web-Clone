@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import Contact from '../models/contactModel.js';
+import Contact from '../models/ContactModel.js';
 import Conversation from '../models/ConversationModel.js';
 import Message from '../models/MessageModel.js';
 import connectDB from '../config/db.js';

@@ -13,7 +13,7 @@ dotenv.config();
 await connectDB();
 
 // Import models
-import Contact from '../models/contactModel.js';
+import Contact from '../models/ContactModel.js';
 import Conversation from '../models/models/ConversationModel.js';
 import Message from '../models/MessageModel.js';
 

@@ -8,7 +8,7 @@
  * - Updates message status
  */
 
-import Contact from '../models/contactModel.js';
+import Contact from '../models/ContactModel.js';
 import Conversation from '../models/ConversationModel.js';
 import Message from '../models/MessageModel.js';
 

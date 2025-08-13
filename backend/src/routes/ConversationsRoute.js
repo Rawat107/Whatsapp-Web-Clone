@@ -1,10 +1,3 @@
-/**
- * Conversation Routes
- * 
- * Purpose: Express routes for conversation and message APIs
- * - Maps HTTP endpoints to controller methods
- * - Provides RESTful API structure for frontend
- */
 
 import { Router } from 'express';
 import conversationController from '../Controllers/conversationController.js';
