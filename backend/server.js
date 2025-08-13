@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import connectDB from '../config/db.js';
+import connectDB from './src/config/db.js';
 
 // Load environment variables
 dotenv.config();
@@ -13,9 +13,9 @@ dotenv.config();
 await connectDB();
 
 // Import models
-import Contact from '../models/ContactModel.js';
-import Conversation from '../models/models/ConversationModel.js';
-import Message from '../models/MessageModel.js';
+import Contact from './src/models/ContactModel.js';
+import Conversation from './src/models/ConversationModel.js';
+import Message from './src/models/MessageModel.js';
 
 const app = express();
 const server = createServer(app);
