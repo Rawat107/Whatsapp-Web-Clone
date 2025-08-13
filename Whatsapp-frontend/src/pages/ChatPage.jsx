@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import ChatWindow from "../components/ChatWindow.jsx";
-import Sidebar from "../components/SideBar.jsx";
+import ChatWindow from "../components/ChatWindow";
+import SideBar from "../components/SideBar";
 import { apiService } from "../utils/apiService";
 
 const ChatPage = () => {
@@ -159,7 +159,7 @@ const ChatPage = () => {
         ${isMobile ? 'w-full' : 'w-80'} 
         flex-shrink-0 transition-all duration-300 ease-in-out
       `}>
-        <Sidebar
+        <SideBar
           conversations={filteredConversations}
           activeId={selectedConversation?.id}
           onSelect={selectConversation}

@@ -6,7 +6,7 @@ import Avatar from "./Avatar";
 import { IoSearch, IoEllipsisVertical } from "react-icons/io5";
 import { formatListTime } from "../utils/time";
 
-const Sidebar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm, businessPhone }) => {
+const SideBar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm, businessPhone }) => {
   return (
     <aside className="h-full bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
@@ -91,4 +91,4 @@ const Sidebar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm,
   );
 };
 
-export default Sidebar;
+export default SideBar;
