@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow";
-import SideBar from "../components/SideBar";
+import SideBar from "../components/Sidebar";
 import { apiService } from "../utils/apiService";
 
 const ChatPage = () => {
