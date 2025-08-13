@@ -1,180 +1,145 @@
-/**
- * ChatPage - Fixed for proper full screen layout and scrolling
- */
-
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import ChatWindow from "../components/ChatWindow";
-import Sidebar from "../components/SideBar";
-import { conversationsData } from "../data/conversations.js";
-import { createSocket } from "../utils/socket.js";
+import Sidebar from "../components/Sidebar";
+import { apiService } from "../utils/apiService";
 
 const ChatPage = () => {
-  // State management
-  const [conversations, setConversations] = useState(() => 
-    JSON.parse(JSON.stringify(conversationsData.conversations))
-  );
-  const businessPhone = conversationsData.businessPhone;
+  const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showSidebar, setShowSidebar] = useState(true);
-  const socketRef = useRef(null);
+  
+  const businessPhone = "918329446654";
 
-  // Socket setup
+  // Load conversations from backend
   useEffect(() => {
-    const socket = createSocket();
-    socketRef.current = socket;
-
-    if (!socket) return;
-
-    socket.on("connect", () => {
-      console.log('Socket connected');
-    });
-
-    socket.on("new-message", (payload) => {
-      const { conversationId, message } = payload;
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                messages: [...conv.messages, message],
-                lastMessage: message.text,
-                lastMessageTime: message.timestamp
-              }
-            : conv
-        )
-      );
-    });
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
+    loadConversations();
   }, []);
 
-  // Responsive behavior
-  useEffect(() => {
-    const onResize = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
-      if (!mobile) setShowSidebar(true);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const loadConversations = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getConversations();
+      setConversations(data);
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Select conversation
-  const selectConversation = (conv) => {
-    setSelectedConversation(conv);
-    setShowSidebar(false);
+  const loadMessages = async (conversationId) => {
+    try {
+      const data = await apiService.getMessages(conversationId);
+      
+      // Set all existing outgoing messages to "read" status (blue ticks)
+      const messagesWithReadStatus = data.map(msg => {
+        if (msg.type === 'outgoing') {
+          return { ...msg, status: 'read' };
+        }
+        return msg;
+      });
+      
+      setMessages(messagesWithReadStatus);
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
 
-    // Clear unread count
-    setConversations(prev => prev.map(c => 
-      c.id === conv.id ? { ...c, unreadCount: 0 } : c
+  const selectConversation = async (conversation) => {
+    setSelectedConversation(conversation);
+    await loadMessages(conversation.id);
+    
+    if (isMobile) {
+      setShowSidebar(false);
+    }
+  };
+
+  // Helper function to update message status
+  const updateMessageStatus = (messageId, newStatus) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, status: newStatus } : msg
     ));
+  };
 
-    // Join socket room
-    if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit("join-conversation", conv.id);
+  const sendMessage = async (text) => {
+    if (!selectedConversation || !text.trim()) return;
+
+    try {
+      const newMessage = await apiService.sendMessage(selectedConversation.id, text.trim());
+      setMessages(prev => [...prev, newMessage]);
+      
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === selectedConversation.id) {
+          return {
+            ...conv,
+            lastMessage: newMessage.text,
+            lastMessageTime: newMessage.timestamp
+          };
+        }
+        return conv;
+      }));
+
+      // Only animate status for NEW messages
+      // Update to "delivered" after 1 second
+      setTimeout(() => {
+        updateMessageStatus(newMessage.id, 'delivered');
+      }, 1000);
+
+      // Update to "read" after 3 seconds
+      setTimeout(() => {
+        updateMessageStatus(newMessage.id, 'read');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Failed to send message:', error);
     }
   };
 
   const goBack = () => {
     setSelectedConversation(null);
+    setMessages([]);
     setShowSidebar(true);
-    if (socketRef.current && socketRef.current.connected && selectedConversation) {
-      socketRef.current.emit("leave-conversation", selectedConversation.id);
-    }
   };
 
-  // Send message
-  const sendMessage = (text) => {
-    if (!selectedConversation || !text.trim()) return;
-
-    const newMessage = {
-      id: `msg_${Date.now()}`,
-      from: businessPhone,
-      to: selectedConversation.contact.phone,
-      text,
-      timestamp: Date.now().toString(),
-      type: "outgoing",
-      status: "sent"
-    };
-
-    setConversations(prev => prev.map(conv => {
-      if (conv.id === selectedConversation.id) {
-        return {
-          ...conv,
-          messages: [...conv.messages, newMessage],
-          lastMessage: text,
-          lastMessageTime: newMessage.timestamp
-        };
-      }
-      return conv;
-    }));
-
-    // Socket emit
-    if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit("send-message", { 
-        conversationId: selectedConversation.id, 
-        message: newMessage 
-      });
-    }
-
-    // Status updates
-    setTimeout(() => {
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === selectedConversation.id) {
-          return {
-            ...conv,
-            messages: conv.messages.map(m => 
-              m.id === newMessage.id ? { ...m, status: "delivered" } : m
-            )
-          };
-        }
-        return conv;
-      }));
-    }, 1000);
-
-    setTimeout(() => {
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === selectedConversation.id) {
-          return {
-            ...conv,
-            messages: conv.messages.map(m => 
-              m.id === newMessage.id ? { ...m, status: "read" } : m
-            )
-          };
-        }
-        return conv;
-      }));
-    }, 3000);
-  };
-
-  // Keep selected conversation in sync
   useEffect(() => {
-    if (!selectedConversation) return;
-    const fresh = conversations.find(c => c.id === selectedConversation.id);
-    if (fresh) setSelectedConversation(fresh);
-  }, [conversations, selectedConversation]);
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) setShowSidebar(true);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  // Filter conversations
-  const filtered = conversations.filter(c =>
-    c.contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredConversations = conversations.filter(conv =>
+    conv.contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    // Fixed: Full height container with no scrolling at this level
     <div className="h-screen flex bg-gray-100 overflow-hidden">
-      
-      {/* Sidebar */}
       <div className={`
         ${isMobile && !showSidebar ? 'hidden' : 'block'} 
         ${isMobile ? 'w-full' : 'w-80'} 
         flex-shrink-0
       `}>
         <Sidebar
-          conversations={filtered}
+          conversations={filteredConversations}
           activeId={selectedConversation?.id}
           onSelect={selectConversation}
           searchTerm={searchTerm}
@@ -183,7 +148,6 @@ const ChatPage = () => {
         />
       </div>
 
-      {/* Chat Window */}
       <div className={`
         flex-1 
         ${isMobile && showSidebar ? 'hidden' : 'flex'}
@@ -191,6 +155,7 @@ const ChatPage = () => {
       `}>
         <ChatWindow
           conversation={selectedConversation}
+          messages={messages}
           businessPhone={businessPhone}
           onBack={goBack}
           isMobile={isMobile}

@@ -1,5 +1,5 @@
 /**
- * ChatWindow - Fixed with proper message area scrolling
+ * ChatWindow - Updated to work with backend messages
  */
 
 import React, { useRef, useEffect } from "react";
@@ -7,13 +7,13 @@ import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
 
-const ChatWindow = ({ conversation, businessPhone, onBack, isMobile, onSendMessage }) => {
+const ChatWindow = ({ conversation, messages = [], businessPhone, onBack, isMobile, onSendMessage }) => {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversation?.messages]);
+  }, [messages]);
 
   // Show welcome screen if no conversation selected
   if (!conversation) {
@@ -21,7 +21,7 @@ const ChatWindow = ({ conversation, businessPhone, onBack, isMobile, onSendMessa
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center px-8 max-w-md">
           <div className="mb-8">
-            <div className="w-32 h-32 mx-auto mb-6 bg-gray-400 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-32 h-32 mx-auto mb-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white text-4xl font-bold">W</span>
             </div>
           </div>
@@ -38,7 +38,6 @@ const ChatWindow = ({ conversation, businessPhone, onBack, isMobile, onSendMessa
   }
 
   return (
-    // Fixed: Full height chat window with proper flex structure
     <div className="h-screen flex flex-col bg-white">
       
       {/* Header - Fixed height */}
@@ -53,18 +52,30 @@ const ChatWindow = ({ conversation, businessPhone, onBack, isMobile, onSendMessa
         className="flex-1 overflow-y-auto py-4"
         style={{
           backgroundColor: '#efeae2',
-          backgroundImage: `url("https://th.bing.com/th/id/OIP.Z4exQUwGyO5mhBDN8AT4lgHaPZ?w=182&h=372&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3")`
+          backgroundImage: `url("https://i.pinimg.com/originals/d2/a7/76/d2a77609f5d97b9081b117c8f699bd37.jpg")`
         }}
       >
         {/* Messages */}
         <div className="min-h-full">
-          {conversation.messages?.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              isOutgoing={message.from === businessPhone}
-            />
-          ))}
+          {messages.length === 0 ? (
+            // No messages state
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500">
+                <div className="text-6xl mb-4">💬</div>
+                <p>No messages yet</p>
+                <p className="text-sm">Start a conversation!</p>
+              </div>
+            </div>
+          ) : (
+            // Render messages
+            messages.map((message) => (
+              <MessageBubble
+                key={message.id || message.messageId}
+                message={message}
+                isOutgoing={message.from === businessPhone}
+              />
+            ))
+          )}
           
           {/* Invisible scroll target */}
           <div ref={messagesEndRef} className="h-1" />
