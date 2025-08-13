@@ -66,6 +66,27 @@ const ChatPage = () => {
     ));
   };
 
+  // Helper function to move conversation to top
+  const moveConversationToTop = (conversationId, newMessage) => {
+    setConversations(prev => {
+      const conversationIndex = prev.findIndex(conv => conv.id === conversationId);
+      if (conversationIndex === -1) return prev;
+
+      const updatedConversation = {
+        ...prev[conversationIndex],
+        lastMessage: newMessage.text,
+        lastMessageTime: newMessage.timestamp
+      };
+
+      // Remove conversation from current position and add to top
+      const newConversations = [...prev];
+      newConversations.splice(conversationIndex, 1);
+      newConversations.unshift(updatedConversation);
+
+      return newConversations;
+    });
+  };
+
   const sendMessage = async (text) => {
     if (!selectedConversation || !text.trim()) return;
 
@@ -73,16 +94,8 @@ const ChatPage = () => {
       const newMessage = await apiService.sendMessage(selectedConversation.id, text.trim());
       setMessages(prev => [...prev, newMessage]);
       
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === selectedConversation.id) {
-          return {
-            ...conv,
-            lastMessage: newMessage.text,
-            lastMessageTime: newMessage.timestamp
-          };
-        }
-        return conv;
-      }));
+      // Move conversation to top with animation
+      moveConversationToTop(selectedConversation.id, newMessage);
 
       // Only animate status for NEW messages
       // Update to "delivered" after 1 second
@@ -97,6 +110,14 @@ const ChatPage = () => {
 
     } catch (error) {
       console.error('Failed to send message:', error);
+    }
+  };
+
+  const handleCloseChat = () => {
+    setSelectedConversation(null);
+    setMessages([]);
+    if (isMobile) {
+      setShowSidebar(true);
     }
   };
 
@@ -136,7 +157,7 @@ const ChatPage = () => {
       <div className={`
         ${isMobile && !showSidebar ? 'hidden' : 'block'} 
         ${isMobile ? 'w-full' : 'w-80'} 
-        flex-shrink-0
+        flex-shrink-0 transition-all duration-300 ease-in-out
       `}>
         <Sidebar
           conversations={filteredConversations}
@@ -151,7 +172,7 @@ const ChatPage = () => {
       <div className={`
         flex-1 
         ${isMobile && showSidebar ? 'hidden' : 'flex'}
-        flex-col
+        flex-col transition-all duration-300 ease-in-out
       `}>
         <ChatWindow
           conversation={selectedConversation}
@@ -160,6 +181,7 @@ const ChatPage = () => {
           onBack={goBack}
           isMobile={isMobile}
           onSendMessage={sendMessage}
+          onCloseChat={handleCloseChat}
         />
       </div>
     </div>

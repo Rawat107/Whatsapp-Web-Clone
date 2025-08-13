@@ -1,8 +1,8 @@
 /**
- * MessageInput - Input area with mic/send toggle like WhatsApp
+ * MessageInput - Single lifted pebble with all controls inside
  */
 import { useState, useRef } from "react";
-import { IoAttach, IoHappyOutline, IoSend, IoMic } from "react-icons/io5";
+import { IoHappyOutline, IoSend, IoMic, IoAdd } from "react-icons/io5";
 
 const MessageInput = ({ onSend }) => {
   const [value, setValue] = useState("");
@@ -22,45 +22,43 @@ const MessageInput = ({ onSend }) => {
     }
   };
 
-  const handleInputChange = (e) => {
-    setValue(e.target.value);
-  };
-
   return (
-    <div className="bg-gray-50 border-t border-gray-200 px-4 py-3">
-      <div className="flex items-end space-x-2">
-        {/* Attach button */}
-        <button className="p-2 text-gray-500 hover:text-gray-700">
-          <IoAttach className="w-5 h-5" />
+    <section className="px-4 py-3">
+      {/* Pebble container */}
+      <div
+        className="flex items-center bg-white rounded-full border border-gray-200 px-3 py-2
+                   shadow-[0_4px_12px_rgba(0,0,0,0.12),2px_0_6px_rgba(0,0,0,0.06)]
+                   space-x-3 w-full"
+      >
+        {/* Attach */}
+        <button className="p-2 text-gray-500 hover:text-gray-700 font-extrabold
+        ">
+          <IoAdd className=" w-5 h-5" />
         </button>
 
-        {/* Input container */}
-        <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 flex items-end space-x-2">
-          {/* Emoji button */}
-          <button className="text-gray-500 hover:text-gray-700 p-1">
-            <IoHappyOutline className="w-5 h-5" />
-          </button>
+        {/* Input */}
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="Type a message"
+          className="flex-1 border-none outline-none text-sm bg-transparent"
+        />
 
-          {/* Text input */}
-          <input
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={handleInputChange}
-            onKeyDown={onKeyDown}
-            placeholder="Type a message"
-            className="flex-1 resize-none border-none outline-none text-sm bg-transparent"
-            rows={1}
-          />
-        </div>
+        {/* Emoji */}
+        <button className="p-2 text-gray-500 hover:text-gray-700">
+          <IoHappyOutline className="w-5 h-5" />
+        </button>
 
-        {/* Send/Mic button */}
+        {/* Send/Mic */}
         <button
           onClick={value.trim() ? handleSend : undefined}
-          className={`p-2 rounded-full transition-all duration-200 ${
-            value.trim() 
-              ? 'bg-green-500 text-white hover:bg-green-600' 
-              : 'text-gray-500 hover:text-gray-700'
+          className={`p-2 rounded-full transition-all duration-200 shadow-md cursor-pointer ${
+            value.trim()
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "text-gray-500 hover:text-gray-700 bg-gray-100"
           }`}
         >
           {value.trim() ? (
@@ -70,7 +68,7 @@ const MessageInput = ({ onSend }) => {
           )}
         </button>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -7,7 +7,7 @@ import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
 
-const ChatWindow = ({ conversation, messages = [], businessPhone, onBack, isMobile, onSendMessage }) => {
+const ChatWindow = ({ conversation, messages = [], businessPhone, onBack, isMobile, onSendMessage, onCloseChat }) => {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -38,54 +38,50 @@ const ChatWindow = ({ conversation, messages = [], businessPhone, onBack, isMobi
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-      
-      {/* Header - Fixed height */}
-      <ChatHeader 
-        conversation={conversation} 
-        onBack={onBack} 
-        isMobile={isMobile} 
-      />
+  <section
+    className="h-screen flex flex-col"
+    style={{
+      backgroundColor: "#efeae2",
+      backgroundImage: `url("https://i.pinimg.com/originals/d2/a7/76/d2a77609f5d97b9081b117c8f699bd37.jpg")`,
+    }}
+  >
+    {/* Header */}
+    <ChatHeader
+      conversation={conversation}
+      onBack={onBack}
+      isMobile={isMobile}
+      onCloseChat={onCloseChat}
+    />
 
-      {/* Messages Area - Scrollable with WhatsApp background */}
-      <div 
-        className="flex-1 overflow-y-auto py-4"
-        style={{
-          backgroundColor: '#efeae2',
-          backgroundImage: `url("https://i.pinimg.com/originals/d2/a7/76/d2a77609f5d97b9081b117c8f699bd37.jpg")`
-        }}
-      >
-        {/* Messages */}
-        <div className="min-h-full">
-          {messages.length === 0 ? (
-            // No messages state
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center text-gray-500">
-                <div className="text-6xl mb-4">💬</div>
-                <p>No messages yet</p>
-                <p className="text-sm">Start a conversation!</p>
-              </div>
+    {/* Messages Area */}
+    <div className="flex-1 overflow-y-auto py-4" style={{ scrollBehavior: "smooth" }}>
+      <div className="min-h-full">
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-500">
+              <div className="text-6xl mb-4">💬</div>
+              <p>No messages yet</p>
+              <p className="text-sm">Start a conversation!</p>
             </div>
-          ) : (
-            // Render messages
-            messages.map((message) => (
-              <MessageBubble
-                key={message.id || message.messageId}
-                message={message}
-                isOutgoing={message.from === businessPhone}
-              />
-            ))
-          )}
-          
-          {/* Invisible scroll target */}
-          <div ref={messagesEndRef} className="h-1" />
-        </div>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <MessageBubble
+              key={message.id || message.messageId}
+              message={message}
+              isOutgoing={message.from === businessPhone}
+            />
+          ))
+        )}
+        <div ref={messagesEndRef} className="h-1" />
       </div>
-
-      {/* Message Input - Fixed height */}
-      <MessageInput onSend={onSendMessage} />
     </div>
-  );
+
+    {/* Input */}
+    <MessageInput onSend={onSendMessage} />
+  </section>
+);
+
 };
 
 export default ChatWindow;

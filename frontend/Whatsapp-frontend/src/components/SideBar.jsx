@@ -8,7 +8,7 @@ import { formatListTime } from "../utils/time";
 
 const Sidebar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm, businessPhone }) => {
   return (
-    <div className="h-full bg-white border-r border-gray-200 flex flex-col">
+    <aside className="h-full bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
       <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ const Sidebar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm,
           ))
         )}
       </div>
-    </div>
+    </aside>
   );
 };
 
