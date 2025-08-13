@@ -1,11 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const ContactSchema = new mongoose.Schema({
   wa_id: {
     type: String,
     required: true,
     unique: true,
-    index: true
   },
   name: {
     type: String,

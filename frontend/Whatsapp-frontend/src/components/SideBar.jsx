@@ -1,7 +1,6 @@
 /**
- * Sidebar - Fixed with proper scrolling for chat list
+ * Sidebar - WhatsApp Web identical styling
  */
-
 import React from "react";
 import Avatar from "./Avatar";
 import { IoSearch, IoEllipsisVertical } from "react-icons/io5";
@@ -9,78 +8,86 @@ import { formatListTime } from "../utils/time";
 
 const Sidebar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm, businessPhone }) => {
   return (
-    // Fixed: Full height sidebar with proper structure
-    <aside className="h-screen flex flex-col bg-gray-50 border-r border-gray-200">
-      
-      {/* Header - Fixed height */}
-      <header className="flex-shrink-0 p-4 bg-gray-50 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <Avatar text="Business" size={12} />
-          <button className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <IoEllipsisVertical className="w-5 h-5 text-gray-600" />
-          </button>
+    <div className="h-full bg-white border-r border-gray-200 flex flex-col">
+      {/* Header */}
+      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-green-600">WhatsApp</h1>
+          <div className="flex items-center space-x-2 text-gray-600">
+            <IoEllipsisVertical className="w-6 h-6 cursor-pointer hover:text-gray-800" />
+          </div>
         </div>
+      </div>
 
-        {/* Search */}
+      {/* Search */}
+      <div className="p-3 bg-white border-b border-gray-100">
         <div className="relative">
-          <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
+            type="text"
+            placeholder="Search or start new chat"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search or start new chat"
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg border-none outline-none text-sm placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-green-500"
           />
         </div>
-      </header>
+      </div>
 
-      {/* Chat List - Scrollable area */}
+      {/* Filter tabs */}
+      <div className="flex bg-white border-b border-gray-100 px-3 py-2">
+        <button className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium mr-2">
+          All
+        </button>
+        <button className="text-gray-600 px-3 py-1 text-sm hover:text-gray-800">
+          Unread
+        </button>
+        <button className="text-gray-600 px-3 py-1 text-sm hover:text-gray-800">
+          Favorites
+        </button>
+        <button className="text-gray-600 px-3 py-1 text-sm hover:text-gray-800">
+          Groups
+        </button>
+      </div>
+
+      {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">
         {conversations.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            <p>{searchTerm ? 'No chats found' : 'No conversations yet'}</p>
+            <p>No conversations found</p>
           </div>
         ) : (
-          conversations.map(conv => {
-            const isActive = conv.id === activeId;
-            return (
-              <div
-                key={conv.id}
-                onClick={() => onSelect(conv)}
-                className={`
-                  flex items-center p-4 cursor-pointer border-b border-gray-100 
-                  hover:bg-gray-50 transition-colors
-                  ${isActive ? 'bg-blue-50 border-blue-100' : ''}
-                `}
-              >
-                <Avatar text={conv.contact.name} size={12} />
-                
-                <div className="ml-3 flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {conv.contact.name}
-                    </h3>
-                    <span className="text-xs text-gray-500 ml-2">
-                      {formatListTime(conv.lastMessageTime)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 truncate">
-                      {conv.lastMessage}
-                    </p>
-                    {conv.unreadCount > 0 && (
-                      <span className="bg-green-500 text-white text-xs rounded-full px-2 py-1 ml-2">
-                        {conv.unreadCount}
-                      </span>
-                    )}
-                  </div>
+          conversations.map(conversation => (
+            <div
+              key={conversation.id}
+              onClick={() => onSelect(conversation)}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 ${
+                activeId === conversation.id ? 'bg-gray-100' : 'bg-white'
+              }`}
+            >
+              <Avatar text={conversation.contact.avatar || conversation.contact.name} size={12} />
+              <div className="ml-3 flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="font-medium text-gray-900 truncate">
+                    {conversation.contact.name}
+                  </h3>
+                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                    {formatListTime(conversation.lastMessageTime)}
+                  </span>
                 </div>
+                <p className="text-sm text-gray-600 truncate mt-1">
+                  {conversation.lastMessage || 'No messages yet'}
+                </p>
               </div>
-            );
-          })
+              {conversation.unreadCount > 0 && (
+                <div className="bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
+                  {conversation.unreadCount}
+                </div>
+              )}
+            </div>
+          ))
         )}
       </div>
-    </aside>
+    </div>
   );
 };
 

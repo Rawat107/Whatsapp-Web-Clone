@@ -1,4 +1,4 @@
-import mongoose from "mongoose"; 
+import mongoose from 'mongoose';
 
 const MessageSchema = new mongoose.Schema({
   messageId: {
@@ -41,18 +41,7 @@ const MessageSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes for better performance
 MessageSchema.index({ conversationId: 1, timestamp: -1 });
 MessageSchema.index({ messageId: 1 });
-MessageSchema.index({ from: 1, to: 1 });
-
-// Static method to update message status
-MessageSchema.statics.updateMessageStatus = async function(messageId, status) {
-  return await this.findOneAndUpdate(
-    { messageId: messageId },
-    { status: status },
-    { new: true }
-  );
-};
 
 export default mongoose.model('Message', MessageSchema);

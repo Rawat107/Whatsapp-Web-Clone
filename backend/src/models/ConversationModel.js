@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const ConversationSchema = new mongoose.Schema({
   participants: [{
@@ -21,25 +21,22 @@ const ConversationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes for better performance
 ConversationSchema.index({ participants: 1 });
 ConversationSchema.index({ lastMessageTime: -1 });
 
-// Static method to find or create conversation
 ConversationSchema.statics.findOrCreateConversation = async function(participants) {
   const sortedParticipants = participants.sort();
-  
-  let conversation = await this.findOne({ 
-    participants: { $all: sortedParticipants, $size: sortedParticipants.length } 
+  let conversation = await this.findOne({
+    participants: { $all: sortedParticipants, $size: sortedParticipants.length }
   });
-  
+
   if (!conversation) {
     conversation = new this({
       participants: sortedParticipants
     });
     await conversation.save();
   }
-  
+
   return conversation;
 };
 

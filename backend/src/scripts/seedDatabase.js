@@ -1,24 +1,21 @@
-import mongoose from 'mongoose'
-import dotenv from "dotenv";
-dotenv.config()
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import Contact from '../models/contactModel.js';
+import Conversation from '../models/ConversationModel.js';
+import Message from '../models/MessageModel.js';
+import connectDB from '../config/db.js';
 
-import connectDB from '../config/db';
+dotenv.config();
 
-import Contact from '../models/contactModel';
-import Conversation from '../models/ConversationModel';
-import Message from '../models/MessageModel';
+// Connect to MongoDB
+await connectDB();
 
-// MongoDB connection
-connectDB()
-
-// Sample webhook data
 const webhookData = [
-  // Ravi Kumar conversation
   {
     contact: { name: "Ravi Kumar", wa_id: "919937320320" },
     messages: [
       {
-        messageId: "msg_ravi_1",
+        messageId: "wamid.HBgMOTE5OTY3NTc4NzIwFQIAEhggMTIzQURFRjEyMzQ1Njc4OTA=",
         from: "919937320320",
         to: "918329446654",
         text: "Hi, I'd like to know more about your services.",
@@ -27,7 +24,7 @@ const webhookData = [
         status: "read"
       },
       {
-        messageId: "msg_ravi_2", 
+        messageId: "wamid.HBgMOTE5OTY3NTc4NzIwFQIAEhggNDc4NzZBQ0YxMjdCQ0VFOTk2NzA3MTI4RkZCNjYyMjc=",
         from: "918329446654",
         to: "919937320320",
         text: "Hi Ravi! Sure, I'd be happy to help you with that. Could you tell me what you're looking for?",
@@ -37,13 +34,12 @@ const webhookData = [
       }
     ]
   },
-  // Neha Joshi conversation
   {
     contact: { name: "Neha Joshi", wa_id: "929967673820" },
     messages: [
       {
-        messageId: "msg_neha_1",
-        from: "929967673820", 
+        messageId: "wamid.HBgMOTI5OTY3NjczODIwFQIAEhggQ0FBQkNERUYwMDFGRjEyMzQ1NkZGQTk5RTJCM0I2NzY=",
+        from: "929967673820",
         to: "918329446654",
         text: "Hi, I saw your ad. Can you share more details?",
         timestamp: new Date('2025-08-06T12:16:40.000Z'),
@@ -51,9 +47,9 @@ const webhookData = [
         status: "read"
       },
       {
-        messageId: "msg_neha_2",
+        messageId: "wamid.HBgMOTI5OTY3NjczODIwFQIAEhggM0RFNDkxRjEwNDhDQzgwMzk3NzA1ODc1RkU3QzI0MzU=",
         from: "918329446654",
-        to: "929967673820", 
+        to: "929967673820",
         text: "Hi Neha! Absolutely. We offer curated home decor pieces—are you looking for nameplates, wall art, or something else?",
         timestamp: new Date('2025-08-06T12:17:10.000Z'),
         type: "outgoing",
@@ -65,38 +61,31 @@ const webhookData = [
 
 const seedDatabase = async () => {
   try {
-    console.log(' Starting database seeding...');
-    
+    console.log('Starting database seeding...');
+
     // Clear existing data
     await Message.deleteMany({});
     await Conversation.deleteMany({});
     await Contact.deleteMany({});
-    console.log('  Cleared existing data');
+    console.log('Cleared existing data');
 
     const businessPhone = process.env.BUSINESS_PHONE || '918329446654';
 
-    // Process each conversation
     for (const convData of webhookData) {
-      // Create or update contact
-      const contact = await Contact.findOneAndUpdate(
-        { wa_id: convData.contact.wa_id },
-        { 
-          name: convData.contact.name,
-          avatar: convData.contact.name.split(' ')
-            .map(word => word.charAt(0).toUpperCase())
-            .join('')
-            .substring(0, 2),
-          lastSeen: new Date()
-        },
-        { upsert: true, new: true }
-      );
-      
-      console.log(` Created/updated contact: ${contact.name}`);
+      // Create contact
+      const contact = new Contact({
+        wa_id: convData.contact.wa_id,
+        name: convData.contact.name,
+        lastSeen: new Date()
+      });
+      await contact.save();
+      console.log(`Created contact: ${contact.name}`);
 
       // Create conversation
       const participants = [convData.contact.wa_id, businessPhone].sort();
       const conversation = await Conversation.findOrCreateConversation(participants);
-      
+      console.log(`Created conversation: ${conversation._id}`);
+
       // Create messages
       let lastMessage = null;
       for (const msgData of convData.messages) {
@@ -110,13 +99,12 @@ const seedDatabase = async () => {
           status: msgData.status,
           timestamp: msgData.timestamp
         });
-        
         await message.save();
         lastMessage = message;
-        console.log(` Created message: "${msgData.text.substring(0, 30)}..."`);
+        console.log(`Created message: ${msgData.text.substring(0, 30)}...`);
       }
 
-      // Update conversation with last message
+      // Update conversation
       if (lastMessage) {
         conversation.lastMessage = lastMessage._id;
         conversation.lastMessageTime = lastMessage.timestamp;
@@ -124,33 +112,21 @@ const seedDatabase = async () => {
       }
     }
 
-    // Display summary
     const messageCount = await Message.countDocuments();
     const conversationCount = await Conversation.countDocuments();
     const contactCount = await Contact.countDocuments();
-    
-    console.log('\n Seeding Summary:');
-    console.log(`    Messages: ${messageCount}`);
-    console.log(`    Conversations: ${conversationCount}`);
-    console.log(`    Contacts: ${contactCount}`);
-    console.log('\n Database seeding completed!');
-    
+
+    console.log('\nSeeding completed!');
+    console.log(`Messages: ${messageCount}`);
+    console.log(`Conversations: ${conversationCount}`);
+    console.log(`Contacts: ${contactCount}`);
+
   } catch (error) {
-    console.error(' Seeding error:', error);
-    process.exit(1);
+    console.error('Seeding error:', error);
   } finally {
-    await mongoose.connection.close();
+    mongoose.connection.close();
+    process.exit(0);
   }
 };
 
-// Run seeding
-const runSeed = async () => {
-  await connectDB();
-  await seedDatabase();
-};
-
-if (require.main === module) {
-  runSeed();
-}
-
-module.exports = { seedDatabase };
+seedDatabase();

@@ -1,13 +1,23 @@
-import router from 'express';
-import conversationController from '../Controllers/conversationController';
+/**
+ * Conversation Routes
+ * 
+ * Purpose: Express routes for conversation and message APIs
+ * - Maps HTTP endpoints to controller methods
+ * - Provides RESTful API structure for frontend
+ */
 
-// Get all conversations
+import { Router } from 'express';
+import conversationController from '../Controllers/conversationController.js';
+
+const router = Router();
+
+// Conversation routes
 router.get('/conversations', conversationController.getConversations);
-
-// Get messages for a specific conversation
+router.get('/conversations/search', conversationController.searchConversations);
 router.get('/conversations/:conversationId/messages', conversationController.getMessages);
-
-// Send a new message
 router.post('/conversations/:conversationId/messages', conversationController.sendMessage);
 
-module.exports = router;
+// Message routes
+router.patch('/messages/:messageId/status', conversationController.updateMessageStatus);
+
+export default router;
