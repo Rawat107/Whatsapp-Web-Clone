@@ -26,7 +26,7 @@ const SideBar = ({ conversations, activeId, onSelect, searchTerm, setSearchTerm,
           <input
             type="text"
             placeholder="Search or start new chat"
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline focus:border-green-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
