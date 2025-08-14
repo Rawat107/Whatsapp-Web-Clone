@@ -1,6 +1,4 @@
-/**
- * MessageInput - Single lifted pebble with all controls inside
- */
+
 import { useState, useRef } from "react";
 import { IoHappyOutline, IoSend, IoMic, IoAdd } from "react-icons/io5";
 

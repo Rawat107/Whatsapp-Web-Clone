@@ -1,6 +1,3 @@
-/**
- * Sidebar - WhatsApp Web identical styling
- */
 import React from "react";
 import Avatar from "./Avatar";
 import { IoSearch, IoEllipsisVertical } from "react-icons/io5";

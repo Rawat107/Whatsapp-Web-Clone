@@ -1,13 +1,3 @@
-/**
- * Socket Utility
- * 
- * Purpose: Handle WebSocket connection for real-time messaging
- * - Creates socket.io client connection to backend
- * - Handles connection/disconnection events
- * - Only connects if VITE_SOCKET_URL environment variable is set
- * - Used for real-time message updates and status changes
- */
-
 import { io } from 'socket.io-client';
 
 /**

@@ -1,6 +1,3 @@
-/** 
- * Avatar Component - WhatsApp style avatars with proper sizing
- */
 import React from 'react';
 
 const getInitials = (nameOrAvatar) => {

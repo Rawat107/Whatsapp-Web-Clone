@@ -16,7 +16,7 @@ const MessageBubble = ({ message, isOutgoing }) => {
   return (
     <div className={`px-4 py-2 flex ${isOutgoing ? "justify-end" : "justify-start"}`}>
       <div className={`max-w-[78%] px-3 py-2 rounded-lg shadow-sm break-words ${
-        isOutgoing ? "bg-green-100 text-gray-900" : "bg-white text-gray-900"
+        isOutgoing ? "bg-green-100 text-gray-900" : "bg-white text-gray-900 "
       }`}>
         <div className="whitespace-pre-wrap">{message.text}</div>
         <div className="flex items-center justify-end gap-2 mt-1 text-xs text-gray-500">

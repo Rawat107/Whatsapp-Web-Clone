@@ -1,6 +1,3 @@
-/**
- * Time utility functions for WhatsApp-style timestamps
- */
 
 export const formatListTime = (timestamp) => {
   const ts = parseInt(timestamp);

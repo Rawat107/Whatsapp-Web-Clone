@@ -1,13 +1,3 @@
-/**
- * Conversation Controller
- * 
- * Purpose: Handles all conversation and message-related API endpoints
- * - Gets conversations list for frontend
- * - Gets messages for specific conversation
- * - Creates new messages
- * - Updates message status
- */
-
 import Contact from '../models/ContactModel.js';
 import Conversation from '../models/ConversationModel.js';
 import Message from '../models/MessageModel.js';
