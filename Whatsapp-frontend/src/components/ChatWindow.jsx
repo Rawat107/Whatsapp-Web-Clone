@@ -3,6 +3,7 @@
  */
 
 import React, { useRef, useEffect } from "react";
+import { IoLogoWhatsapp } from "react-icons/io5";
 import ChatHeader from "./ChatHeader";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
@@ -21,8 +22,8 @@ const ChatWindow = ({ conversation, messages = [], businessPhone, onBack, isMobi
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center px-8 max-w-md">
           <div className="mb-8">
-            <div className="w-32 h-32 mx-auto mb-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white text-4xl font-bold">W</span>
+            <div className="w-32 h-32 mx-auto mb-6 bg-green-400 rounded-full flex items-center justify-center shadow-lg">
+              <IoLogoWhatsapp className="text-white w-20 h-20" />
             </div>
           </div>
           <h1 className="text-3xl font-light text-gray-800 mb-6">

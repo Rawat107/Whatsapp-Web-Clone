@@ -1,6 +1,3 @@
-/**
- * ChatHeader - Just fix the close chat function, keep everything else same
- */
 import React, { useState, useRef, useEffect } from 'react';
 import Avatar from './Avatar';
 import { IoArrowBack, IoSearch, IoEllipsisVertical } from 'react-icons/io5';
